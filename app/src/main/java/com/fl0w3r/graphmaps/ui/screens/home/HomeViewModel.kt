@@ -5,8 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fl0w3r.graphmaps.UserQuery
+import com.fl0w3r.graphmaps.graph.ApiStatus
 import com.fl0w3r.graphmaps.graph.GraphMapClient
-import com.fl0w3r.graphmaps.ui.screens.home.state.ApiStatus
 import com.fl0w3r.graphmaps.ui.screens.home.state.UserState
 import kotlinx.coroutines.launch
 

@@ -35,7 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.fl0w3r.graphmaps.UserQuery
-import com.fl0w3r.graphmaps.ui.screens.home.state.ApiStatus
+import com.fl0w3r.graphmaps.graph.ApiStatus
 import com.fl0w3r.graphmaps.ui.screens.home.state.UserState
 import com.fl0w3r.graphmaps.ui.theme.GraphMapsTheme
 

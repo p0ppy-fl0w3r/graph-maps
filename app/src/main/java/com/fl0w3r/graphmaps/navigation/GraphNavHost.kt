@@ -1,7 +1,9 @@
 package com.fl0w3r.graphmaps.navigation
 
+import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -22,7 +24,9 @@ fun GraphNavHost(
         }
 
         composable("add") {
-            AddScreen()
+            AddScreen(onUserAdded = {
+                navController.navigate("home")
+            })
         }
     }
 }
