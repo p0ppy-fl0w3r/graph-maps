@@ -70,9 +70,10 @@ class HomeViewModel : ViewModel() {
                 val response = graphClient.query(UserQuery(userId.toString())).execute()
                 val user = response.data?.user
                 if (user?.name != null) {
+
                     _userState.value = UserState(
                         ApiStatus.SUCCESS,
-                        user = user
+                        user = user,
                     )
                 } else {
                     _userState.value = UserState(
@@ -88,6 +89,5 @@ class HomeViewModel : ViewModel() {
             }
         }
     }
-
 
 }
