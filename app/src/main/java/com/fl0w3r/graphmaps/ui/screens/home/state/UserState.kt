@@ -7,3 +7,8 @@ data class UserState(
     val apiStatus: ApiStatus,
     val user: User?
 )
+
+data class UserDeleteState(
+    val apiStatus: ApiStatus,
+    val deleted: Boolean = false
+)

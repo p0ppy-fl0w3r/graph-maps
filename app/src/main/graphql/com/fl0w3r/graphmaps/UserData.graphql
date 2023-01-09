@@ -1,0 +1,13 @@
+query UserQuery($id: ID!){
+  user(id: $id) {
+    id
+    name
+    address {
+      street
+      geo {
+        lat
+        lng
+      }
+    }
+  }
+}

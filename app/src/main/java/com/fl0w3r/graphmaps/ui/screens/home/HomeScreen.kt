@@ -19,9 +19,12 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.fl0w3r.graphmaps.UserQuery
 import com.fl0w3r.graphmaps.graph.ApiStatus
+import com.fl0w3r.graphmaps.ui.screens.home.state.UserDeleteState
 import com.fl0w3r.graphmaps.ui.screens.home.state.UserState
 import com.fl0w3r.graphmaps.ui.theme.GraphMapsTheme
 
@@ -58,6 +62,33 @@ fun HomeScreen(
         )
     )
 
+    val userDeleteState by homeViewModel.userDeleteState.observeAsState(
+        UserDeleteState(apiStatus = ApiStatus.INITIAL)
+    )
+
+    if (userDeleteState.apiStatus != ApiStatus.INITIAL) {
+        LaunchedEffect(userDeleteState) {
+            when (userDeleteState.apiStatus) {
+                ApiStatus.SUCCESS -> {
+                    if (userDeleteState.deleted) {
+                        Toast.makeText(context, "Deleted User!", Toast.LENGTH_SHORT).show()
+                        homeViewModel.resetAppState()
+                    } else {
+                        Toast.makeText(context, "Failed to delete user!", Toast.LENGTH_SHORT).show()
+                        homeViewModel.resetDeleteStatus()
+                    }
+                }
+
+                ApiStatus.FAILED -> {
+                    Toast.makeText(context, "Failed to delete user!", Toast.LENGTH_SHORT).show()
+                    homeViewModel.resetDeleteStatus()
+                }
+
+                else -> {}
+            }
+        }
+    }
+
     HomeBody(
         modifier = modifier,
         onAddClicked = { onAddClicked() },
@@ -70,12 +101,14 @@ fun HomeScreen(
             it.toIntOrNull()?.let { userId ->
                 homeViewModel.getUser(userId)
             } ?: Toast.makeText(
-                context,
-                "Please enter a valid user id!",
-                Toast.LENGTH_SHORT
+                context, "Please enter a valid user id!", Toast.LENGTH_SHORT
             ).show()
         },
-        userState = userState
+        userState = userState,
+        onDeleteClicked = {
+            homeViewModel.deleteUser(it)
+        },
+        showDeleteSpinner = userDeleteState.apiStatus == ApiStatus.PENDING
     )
 }
 
@@ -86,6 +119,8 @@ fun HomeBody(
     onSearchChanged: (String) -> Unit,
     onSearchClicked: (String) -> Unit,
     onAddClicked: () -> Unit,
+    onDeleteClicked: (String) -> Unit,
+    showDeleteSpinner: Boolean,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
@@ -112,8 +147,7 @@ fun HomeBody(
 
             ApiStatus.PENDING -> {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
+                    modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center
                 ) {
                     CircularProgressIndicator()
                 }
@@ -129,7 +163,9 @@ fun HomeBody(
 
             ApiStatus.SUCCESS -> {
                 // Assumes that user is not null if api request succeeded
-                UserItem(userState.user!!)
+                UserItem(userState.user!!, onDeleteClicked = {
+                    onDeleteClicked(it)
+                }, showDeleteSpinner = showDeleteSpinner)
             }
         }
 
@@ -144,13 +180,18 @@ fun SearchUser(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-        OutlinedTextField(value = searchParam, onValueChange = {
-            onSearchChanged(it)
-        }, label = {
-            Text(text = "User Id")
-        }, placeholder = {
-            Text(text = "Get user by id...")
-        }, modifier = Modifier.fillMaxWidth(),
+        OutlinedTextField(
+            value = searchParam,
+            onValueChange = {
+                onSearchChanged(it)
+            },
+            label = {
+                Text(text = "User Id")
+            },
+            placeholder = {
+                Text(text = "Get user by id...")
+            },
+            modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
 
@@ -165,7 +206,12 @@ fun SearchUser(
 }
 
 @Composable
-fun UserItem(user: UserQuery.User, modifier: Modifier = Modifier) {
+fun UserItem(
+    user: UserQuery.User,
+    showDeleteSpinner: Boolean,
+    onDeleteClicked: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     Card(
         modifier = modifier
             .padding(8.dp)
@@ -183,9 +229,35 @@ fun UserItem(user: UserQuery.User, modifier: Modifier = Modifier) {
             Divider(modifier = Modifier.background(color = MaterialTheme.colors.primary))
 
             Location(
-                latitude = user.address?.geo?.lat ?: 0.0,
-                longitude = user.address?.geo?.lng ?: 0.0
+                latitude = user.address?.geo?.lat ?: 0.0, longitude = user.address?.geo?.lng ?: 0.0
             )
+
+            Row(
+                modifier = Modifier
+                    .padding(vertical = 8.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                IconButton(onClick = {
+                    onDeleteClicked(user.id!!)
+                }) {
+                    Icon(imageVector = Icons.Default.Delete, contentDescription = null)
+                }
+                IconButton(onClick = { /*TODO*/ }) {
+                    Icon(imageVector = Icons.Default.Edit, contentDescription = null)
+                }
+            }
+
+            if (showDeleteSpinner) {
+                Row(
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
         }
     }
 
@@ -204,9 +276,9 @@ private fun UserPreview() {
             HomeBody(onAddClicked = { }, searchParam = "", onSearchChanged = {
 
             }, onSearchClicked = {}, userState = UserState(
-                apiStatus = ApiStatus.INITIAL, user = null
-            )
-            )
+                apiStatus = ApiStatus.SUCCESS,
+                user = UserQuery.User(id = "1", name = "Text User", address = null)
+            ), onDeleteClicked = {}, showDeleteSpinner = true)
         }
     }
 }
