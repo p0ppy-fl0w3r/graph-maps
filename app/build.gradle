@@ -47,7 +47,10 @@ android {
     }
 
     apollo {
-        packageName.set("com.fl0w3r.graphmaps")
+        // Will get deprecated warning if you do not specify service
+        service("service") {
+            packageName.set("com.fl0w3r.graphmaps")
+        }
     }
 }
 
