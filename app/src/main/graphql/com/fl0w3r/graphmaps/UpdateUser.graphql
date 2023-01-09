@@ -1,0 +1,24 @@
+mutation UpdateUserMutation($id:ID!, $updateUserInput: UpdateUserInput!){
+    updateUser(id: $id, input: $updateUserInput){
+        name
+        username
+        email
+        address {
+            street
+            suite
+            city
+            zipcode
+            geo {
+                lat
+                lng
+            }
+        },
+        phone
+        website
+        company{
+            name
+            catchPhrase
+            bs
+        }
+    }
+}

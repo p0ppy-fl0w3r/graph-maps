@@ -46,6 +46,7 @@ import com.fl0w3r.graphmaps.ui.theme.GraphMapsTheme
 @Composable
 fun HomeScreen(
     onAddClicked: () -> Unit,
+    onEditClicked: (String) -> Unit,
     modifier: Modifier = Modifier,
     homeViewModel: HomeViewModel = viewModel()
 ) {
@@ -108,6 +109,9 @@ fun HomeScreen(
         onDeleteClicked = {
             homeViewModel.deleteUser(it)
         },
+        onEditClicked = {
+            onEditClicked(it)
+        },
         showDeleteSpinner = userDeleteState.apiStatus == ApiStatus.PENDING
     )
 }
@@ -120,6 +124,7 @@ fun HomeBody(
     onSearchClicked: (String) -> Unit,
     onAddClicked: () -> Unit,
     onDeleteClicked: (String) -> Unit,
+    onEditClicked: (String) -> Unit,
     showDeleteSpinner: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -163,9 +168,14 @@ fun HomeBody(
 
             ApiStatus.SUCCESS -> {
                 // Assumes that user is not null if api request succeeded
-                UserItem(userState.user!!, onDeleteClicked = {
-                    onDeleteClicked(it)
-                }, showDeleteSpinner = showDeleteSpinner)
+                UserItem(
+                    userState.user!!, onDeleteClicked = {
+                        onDeleteClicked(it)
+                    },
+                    onEditClicked = {
+                        onEditClicked(it)
+                    }, showDeleteSpinner = showDeleteSpinner
+                )
             }
         }
 
@@ -210,6 +220,7 @@ fun UserItem(
     user: UserQuery.User,
     showDeleteSpinner: Boolean,
     onDeleteClicked: (String) -> Unit,
+    onEditClicked: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -243,7 +254,9 @@ fun UserItem(
                 }) {
                     Icon(imageVector = Icons.Default.Delete, contentDescription = null)
                 }
-                IconButton(onClick = { /*TODO*/ }) {
+                IconButton(onClick = {
+                    user.id?.let { onEditClicked(it) }
+                }) {
                     Icon(imageVector = Icons.Default.Edit, contentDescription = null)
                 }
             }
@@ -278,7 +291,9 @@ private fun UserPreview() {
             }, onSearchClicked = {}, userState = UserState(
                 apiStatus = ApiStatus.SUCCESS,
                 user = UserQuery.User(id = "1", name = "Text User", address = null)
-            ), onDeleteClicked = {}, showDeleteSpinner = true)
+            ), onDeleteClicked = {}, showDeleteSpinner = true,
+                onEditClicked = {}
+            )
         }
     }
 }

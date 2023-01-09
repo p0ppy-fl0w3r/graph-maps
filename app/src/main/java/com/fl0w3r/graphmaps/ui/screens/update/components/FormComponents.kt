@@ -1,7 +1,5 @@
-package com.fl0w3r.graphmaps.ui.screens.add
+package com.fl0w3r.graphmaps.ui.screens.update.components
 
-
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,8 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Divider
@@ -21,113 +17,27 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.fl0w3r.graphmaps.graph.ApiStatus
 import com.fl0w3r.graphmaps.ui.components.InputField
-import com.fl0w3r.graphmaps.ui.screens.add.state.AddUserState
-import com.fl0w3r.graphmaps.ui.screens.add.state.UserErrorState
-import com.fl0w3r.graphmaps.ui.screens.add.state.UserFormState
-
-@Composable
-fun AddScreen(
-    onUserAdded: (Int) -> Unit,
-    modifier: Modifier = Modifier,
-    addViewModel: AddUserViewModel = viewModel()
-) {
-
-    val context = LocalContext.current
-
-    val addUserSate by addViewModel.addUserState.observeAsState(
-        AddUserState(
-            apiStatus = ApiStatus.INITIAL, userId = null
-        )
-    )
-    val userFormState by addViewModel.userFormState.observeAsState(UserFormState())
-    val formErrorState by addViewModel.userErrorState.observeAsState(UserErrorState())
-
-    if (addUserSate.apiStatus == ApiStatus.SUCCESS) {
-        LaunchedEffect(addUserSate) {
-            addUserSate.userId?.let {
-                Toast.makeText(context, "Added user with id $it", Toast.LENGTH_SHORT).show()
-                onUserAdded(it)
-            }
-        }
-    }
-
-    AddBody(
-        modifier = modifier,
-        userFormState = userFormState,
-        errorState = formErrorState,
-        onStateChange = {
-            addViewModel.onFormChange(it)
-        },
-        onAddPressed = {
-            addViewModel.addUser(it)
-        },
-        apiStatus = addUserSate.apiStatus
-    )
-}
+import com.fl0w3r.graphmaps.ui.screens.update.state.UserErrorState
+import com.fl0w3r.graphmaps.ui.screens.update.state.UserFormState
 
 
 @Composable
-fun AddBody(
-    userFormState: UserFormState,
-    apiStatus: ApiStatus,
-    errorState: UserErrorState,
-    onStateChange: (UserFormState) -> Unit,
-    onAddPressed: (UserFormState) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
-    ) {
-        AddUserForm(apiStatus = apiStatus,
-            userFormState = userFormState,
-            errorState = errorState,
-            onUserFormChange = {
-                onStateChange(it)
-            },
-            onAddPressed = {
-                onAddPressed(it)
-            })
-    }
-}
-
-@Composable
-private fun LabeledBreak(label: String, modifier: Modifier = Modifier) {
-    Column(modifier = modifier.padding(6.dp)) {
-
-        Text(text = label, style = MaterialTheme.typography.h5)
-        Spacer(modifier = Modifier.height(2.dp))
-        Divider(
-            modifier = Modifier
-                .padding(top = 2.dp, bottom = 6.dp)
-                .height(2.dp)
-                .background(color = MaterialTheme.colors.primary)
-        )
-
-    }
-}
-
-@Composable
-fun AddUserForm(
+fun UserForm(
     userFormState: UserFormState,
     errorState: UserErrorState,
     onUserFormChange: (UserFormState) -> Unit,
-    onAddPressed: (UserFormState) -> Unit,
+    onUpdatePressed: (UserFormState) -> Unit,
     apiStatus: ApiStatus,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isEdit: Boolean = false,
 ) {
     Column(
         modifier = modifier
@@ -269,10 +179,13 @@ fun AddUserForm(
         )
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-            Button(onClick = { onAddPressed(userFormState) }) {
+            Button(onClick = { onUpdatePressed(userFormState) }) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = null)
-                    Text(text = "Add")
+                    Icon(
+                        imageVector = if (isEdit) Icons.Default.Edit else Icons.Default.Add,
+                        contentDescription = null
+                    )
+                    Text(text = if (isEdit) "Edit" else "Add")
                 }
             }
 
@@ -283,8 +196,28 @@ fun AddUserForm(
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
             if (apiStatus == ApiStatus.FAILED) {
-                Text(text = "Failed to add user!", color = MaterialTheme.colors.error)
+                Text(
+                    text = "Failed to ${if (isEdit) "edit" else "add"} user!",
+                    color = MaterialTheme.colors.error
+                )
             }
         }
+    }
+}
+
+
+@Composable
+private fun LabeledBreak(label: String, modifier: Modifier = Modifier) {
+    Column(modifier = modifier.padding(6.dp)) {
+
+        Text(text = label, style = MaterialTheme.typography.h5)
+        Spacer(modifier = Modifier.height(2.dp))
+        Divider(
+            modifier = Modifier
+                .padding(top = 2.dp, bottom = 6.dp)
+                .height(2.dp)
+                .background(color = MaterialTheme.colors.primary)
+        )
+
     }
 }

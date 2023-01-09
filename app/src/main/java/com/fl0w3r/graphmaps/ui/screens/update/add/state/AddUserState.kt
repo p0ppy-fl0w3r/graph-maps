@@ -1,4 +1,4 @@
-package com.fl0w3r.graphmaps.ui.screens.add.state
+package com.fl0w3r.graphmaps.ui.screens.update.add.state
 
 import com.fl0w3r.graphmaps.graph.ApiStatus
 
