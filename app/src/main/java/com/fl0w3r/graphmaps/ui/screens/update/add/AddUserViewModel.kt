@@ -51,25 +51,25 @@ class AddUserViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 _addUserState.value = AddUserState(
-                    apiStatus = ApiStatus.PENDING, userId = null
+                    apiStatus = ApiStatus.PENDING, user = null
                 )
 
                 val response = graphClient.mutation(UserMutation(createUserInput)).execute()
-                val userId = response.data?.createUser?.id?.toIntOrNull()
+                val newUser = response.data?.createUser
 
-                if (userId != null) {
+                if (newUser != null) {
                     _addUserState.value = AddUserState(
-                        apiStatus = ApiStatus.SUCCESS, userId = userId.toInt()
+                        apiStatus = ApiStatus.SUCCESS, user = newUser
                     )
                 } else {
                     _addUserState.value = AddUserState(
-                        apiStatus = ApiStatus.FAILED, userId = -1
+                        apiStatus = ApiStatus.FAILED, null
                     )
                 }
 
             } catch (e: Exception) {
                 _addUserState.value = AddUserState(
-                    apiStatus = ApiStatus.FAILED, userId = -1
+                    apiStatus = ApiStatus.FAILED, null
                 )
             }
         }

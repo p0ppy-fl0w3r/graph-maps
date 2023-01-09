@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
@@ -33,17 +32,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
-import com.fl0w3r.graphmaps.R
 import com.fl0w3r.graphmaps.UserQuery
 import com.fl0w3r.graphmaps.graph.ApiStatus
+import com.fl0w3r.graphmaps.ui.components.Location
 import com.fl0w3r.graphmaps.ui.screens.home.state.UserDeleteState
 import com.fl0w3r.graphmaps.ui.screens.home.state.UserState
 import com.fl0w3r.graphmaps.ui.theme.GraphMapsTheme
@@ -134,7 +130,7 @@ fun HomeBody(
     showDeleteSpinner: Boolean,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier) {
+    Column(modifier = modifier.padding(horizontal = 4.dp)) {
 
         Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
             IconButton(onClick = { onAddClicked() }) {
@@ -210,7 +206,9 @@ fun SearchUser(
             placeholder = {
                 Text(text = "Get user by id...")
             },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .padding(horizontal = 4.dp, vertical = 2.dp)
+                .fillMaxWidth(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
 
@@ -283,26 +281,8 @@ fun UserItem(
             }
         }
     }
-
 }
 
-@Composable
-fun Location(latitude: String, longitude: String, modifier: Modifier = Modifier) {
-
-    AsyncImage(
-        model = ImageRequest.Builder(LocalContext.current).data(
-            "https://www.mapquestapi.com/staticmap/v5/map?key=tgRq8pPaSmG5SEIJipAv3fgoQZGgobGr&center=$latitude,$longitude&size=600,400@2x"
-        ).crossfade(true)
-            .placeholder(R.drawable.placeholder)
-            .build(), contentDescription = null,
-        modifier = modifier
-            .fillMaxWidth()
-            .height(200.dp),
-        contentScale = ContentScale.Crop
-
-    )
-
-}
 
 @Preview
 @Composable

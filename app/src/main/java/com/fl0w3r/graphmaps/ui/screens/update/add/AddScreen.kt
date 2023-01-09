@@ -13,6 +13,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.fl0w3r.graphmaps.UserMutation
 import com.fl0w3r.graphmaps.graph.ApiStatus
 import com.fl0w3r.graphmaps.ui.screens.update.components.UserForm
 import com.fl0w3r.graphmaps.ui.screens.update.add.state.AddUserState
@@ -21,7 +22,7 @@ import com.fl0w3r.graphmaps.ui.screens.update.state.UserFormState
 
 @Composable
 fun AddScreen(
-    onUserAdded: (Int) -> Unit,
+    onUserAdded: (UserMutation.CreateUser) -> Unit,
     modifier: Modifier = Modifier,
     addViewModel: AddUserViewModel = viewModel()
 ) {
@@ -30,7 +31,7 @@ fun AddScreen(
 
     val addUserSate by addViewModel.addUserState.observeAsState(
         AddUserState(
-            apiStatus = ApiStatus.INITIAL, userId = null
+            apiStatus = ApiStatus.INITIAL, user = null
         )
     )
     val userFormState by addViewModel.userFormState.observeAsState(UserFormState())
@@ -38,8 +39,8 @@ fun AddScreen(
 
     if (addUserSate.apiStatus == ApiStatus.SUCCESS) {
         LaunchedEffect(addUserSate) {
-            addUserSate.userId?.let {
-                Toast.makeText(context, "Added user with id $it", Toast.LENGTH_SHORT).show()
+            addUserSate.user?.let {
+                Toast.makeText(context, "Added user with id ${it.id}", Toast.LENGTH_SHORT).show()
                 onUserAdded(it)
             }
         }
